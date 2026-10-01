@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FoodCategory {
+  veg
+  non_veg
+  egg
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  name           String
+  email          String        @unique
+  passwordHash   String        @map("password_hash")
+  age            Int?
+  weight         Decimal?      @db.Decimal(8, 2)
+  height         Decimal?      @db.Decimal(8, 2)
+  activityLevel  String?       @map("activity_level")
+  dietPreference String?       @map("diet_preference")
+  trainingExperience String?   @map("training_experience")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  mealPlans      MealPlan[]
+  trainingSplits TrainingSplit[]
+  workoutLogs    WorkoutLog[]
+  plateauFlags   PlateauFlag[]
+
+  @@map("users")
+}
+
+model Food {
+  id                 Int                @id @default(autoincrement())
+  name               String             @unique
+  costPerServing     Decimal            @map("cost_per_serving") @db.Decimal(8, 2)
+  protein            Decimal            @db.Decimal(8, 2)
+  carbs              Decimal            @db.Decimal(8, 2)
+  fat                Decimal            @db.Decimal(8, 2)
+  calories           Int
+  category           FoodCategory
+  isCommonIndianFood Boolean            @default(true) @map("is_common_indian_food")
+
+  mealPlanItems      MealPlanItem[]
+
+  @@index([category])
+  @@map("foods")
+}
+
+model MealPlan {
+  id                   Int            @id @default(autoincrement())
+  userId               Int            @map("user_id")
+  date                 DateTime       @default(now())
+  totalCost            Decimal        @map("total_cost") @db.Decimal(10, 2)
+  totalProtein         Decimal        @map("total_protein") @db.Decimal(10, 2)
+  totalCarbs           Decimal        @map("total_carbs") @db.Decimal(10, 2)
+  totalFat             Decimal        @map("total_fat") @db.Decimal(10, 2)
+  totalCalories        Int            @map("total_calories")
+  generatedExplanation String?        @map("generated_explanation")
+
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items                MealPlanItem[]
+
+  @@index([userId])
+  @@index([date])
+  @@map("meal_plans")
+}
+
+model MealPlanItem {
+  id         Int      @id @default(autoincrement())
+  mealPlanId Int      @map("meal_plan_id")
+  foodId     Int      @map("food_id")
+  quantity   Int      @default(1)
+
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  food       Food     @relation(fields: [foodId], references: [id], onDelete: Restrict)
+
+  @@unique([mealPlanId, foodId])
+  @@index([mealPlanId])
+  @@index([foodId])
+  @@map("meal_plan_items")
+}
+
+model TrainingSplit {
+  id          Int                @id @default(autoincrement())
+  userId      Int                @map("user_id")
+  daysPerWeek Int                @map("days_per_week")
+  goal        String
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days        TrainingSplitDay[]
+
+  @@index([userId])
+  @@map("training_splits")
+}
+
+model TrainingSplitDay {
+  id                 Int           @id @default(autoincrement())
+  trainingSplitId    Int           @map("training_split_id")
+  dayNumber          Int           @map("day_number")
+  muscleGroups       String[]      @map("muscle_groups")
+  suggestedExercises Json          @map("suggested_exercises")
+
+  trainingSplit      TrainingSplit @relation(fields: [trainingSplitId], references: [id], onDelete: Cascade)
+
+  @@unique([trainingSplitId, dayNumber])
+  @@index([trainingSplitId])
+  @@map("training_split_days")
+}
+
+model WorkoutLog {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  exerciseName String   @map("exercise_name")
+  weight       Decimal  @db.Decimal(8, 2)
+  reps         Int
+  sets         Int
+  date         DateTime
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, exerciseName, date])
+  @@map("workout_logs")
+}
+
+model PlateauFlag {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  exerciseName String   @map("exercise_name")
+  detectedAt   DateTime @default(now()) @map("detected_at")
+  aiSuggestion  String?  @map("ai_suggestion")
+  resolved      Boolean  @default(false)
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, exerciseName])
+  @@map("plateau_flags")
+}
