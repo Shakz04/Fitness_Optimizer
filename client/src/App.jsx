@@ -158,7 +158,7 @@ function Topbar({ user, theme }) {
 
 function AuthPage({ mode, auth, theme }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "demo@fitness.local", password: "demo12345" });
+  const [form, setForm] = useState({ name: "", email: import.meta.env.DEV ? "demo@fitness.local" : "", password: import.meta.env.DEV ? "demo12345" : "" });
   const [error, setError] = useState("");
   const isSignup = mode === "signup";
 
@@ -173,7 +173,9 @@ function AuthPage({ mode, auth, theme }) {
       auth.save(result);
       navigate(isSignup ? "/onboarding" : "/");
     } catch (err) {
-      setError(err.response?.data?.message ?? err.message ?? "Authentication failed.");
+      setError([502, 503, 504].includes(err.response?.status)
+        ? "The server is temporarily unavailable or waking up. Please wait a minute and try again."
+        : err.response?.data?.message ?? err.message ?? "Authentication failed.");
     }
   }
 
@@ -183,7 +185,7 @@ function AuthPage({ mode, auth, theme }) {
       <form className="auth-card" onSubmit={submit}>
         <Activity size={28} />
         <h1>{isSignup ? "Create your account" : "Log in"}</h1>
-        <p>Demo account: demo@fitness.local / demo12345</p>
+        <p>{import.meta.env.DEV ? "Demo account: demo@fitness.local / demo12345" : isSignup ? "Create an account to save your fitness plans." : "Log in with your account, or sign up below."}</p>
         {isSignup && (
           <label>
             Name
