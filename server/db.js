@@ -32,7 +32,7 @@ function delegate(modelName) {
         try {
           return await value.apply(target, args);
         } catch (error) {
-          if (!isDatabaseStartupError(error) || typeof fallback !== "function") {
+          if (process.env.NODE_ENV === "production" || !isDatabaseStartupError(error) || typeof fallback !== "function") {
             throw error;
           }
 

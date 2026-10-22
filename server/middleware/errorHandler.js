@@ -6,9 +6,10 @@ export function errorHandler(error, req, res, next) {
     error
   });
   if (res.headersSent) return next(error);
+  const hideDetails = process.env.NODE_ENV === "production" && (!error.statusCode || error.statusCode >= 500);
   res.status(error.statusCode ?? 500).json({
     error: true,
-    message: error.message ?? "Internal server error",
-    code: error.code
+    message: hideDetails ? "Internal server error" : error.message ?? "Internal server error",
+    code: hideDetails ? "INTERNAL_ERROR" : error.code
   });
 }

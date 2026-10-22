@@ -70,6 +70,8 @@ async function main() {
     skipDuplicates: true
   });
 
+  if (process.env.NODE_ENV === "production") return;
+
   await prisma.user.upsert({
     where: { email: "demo@fitness.local" },
     update: {},

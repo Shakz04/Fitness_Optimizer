@@ -1,8 +1,0 @@
-[2m7:20:29 pm[22m [31m[1m[vite][22m[39m Pre-transform error: Failed to load url /src/App.jsx (resolved id: C:/Users/saksh/OneDrive/Desktop/Fitness_app/client/src/App.jsx) in C:/Users/saksh/OneDrive/Desktop/Fitness_app/client/src/index.css. Does the file exist?
-npm error Lifecycle script `dev` failed with error:
-npm error code 4294967295
-npm error path C:\Users\saksh\OneDrive\Desktop\Fitness_app\client
-npm error workspace fitness-optimizer-client@1.0.0
-npm error location C:\Users\saksh\OneDrive\Desktop\Fitness_app\client
-npm error command failed
-npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vite --host localhost --port 5173

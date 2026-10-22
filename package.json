@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "npm run prisma:generate && npm run build --workspace client",
+    "start": "node server/src/server.js",
+    "db:deploy": "prisma migrate deploy",
     "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
     "server:dev": "npm run dev --workspace server",
     "client:dev": "npm run dev --workspace client",
